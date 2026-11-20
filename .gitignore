@@ -1,0 +1,9 @@
+# Generated on each machine, never commit these
+baseline/*
+logs/*
+reports/*
+
+# Keep the empty folders in the repo
+!baseline/.gitkeep
+!logs/.gitkeep
+!reports/.gitkeep
