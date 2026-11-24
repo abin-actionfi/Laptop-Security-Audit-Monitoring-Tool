@@ -4,6 +4,7 @@ OK_COUNT=0
 WARN_COUNT=0
 CRIT_COUNT=0
 RECOMMENDATIONS=()
+CRITICALS=()
 
 ALERT_LOG="$PROJECT_DIR/logs/alerts.log"
 
@@ -21,6 +22,7 @@ log_warn() {
 log_crit() {
 	echo "[CRIT]  $1"
 	CRIT_COUNT=$((CRIT_COUNT+1))
+	CRITICALS+=("$1")
 	send_alert "CRIT" "$1"
 }
 
@@ -39,6 +41,13 @@ print_summary() {
     echo "WARNINGS:  $WARN_COUNT"
     echo "CRITICAL:  $CRIT_COUNT"
 
+    if [ "${#CRITICALS[@]}" -gt 0 ]; then
+	section "CRITICAL FINDINGS"
+	for item in "${CRITICALS[@]}"; do
+	   echo "- $item"
+	done
+    fi
+
     if [ "${#RECOMMENDATIONS[@]}" -gt 0 ]; then
         section "RECOMMENDATIONS"
         local i=1
@@ -55,7 +64,6 @@ send_alert() {
 
     mkdir -p "$(dirname "$ALERT_LOG")"
     echo "$(date '+%d-%m-%Y %H:%M:%S') [$level] $message" >> "$ALERT_LOG"
-    logger -t  laptop-audit "[$level] $message"
 }
 
 require_root() {

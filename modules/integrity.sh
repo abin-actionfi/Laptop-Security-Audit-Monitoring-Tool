@@ -28,3 +28,12 @@ check_integrity() {
 
     recommend "Verify the change was intended. If it was, delete baseline/integrity.sha256 to re-create it."
 }
+
+rebaseline_integrity() {
+	local baseline="$PROJECT_DIR/baseline/integrity.sha256"
+	mkdir -p "$PROJECT_DIR/baseline"
+
+	sha256sum "${INTEGRITY_FILES[@]}" > "$baseline"
+	send_alert "INFO" "Integrity baseline reset by ${SUDO_USER:-root}"
+	echo "Baseline updated for ${#INTEGRITY_FILES[@]} files"
+}
