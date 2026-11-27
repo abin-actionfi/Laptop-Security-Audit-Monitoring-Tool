@@ -1,7 +1,5 @@
 #!/bin/bash
 
-INTEGRITY_FILES=(/etc/passwd /etc/shadow /etc/sudoers /etc/hosts /etc/crontab)
-
 check_integrity() {
     section "FILE INTEGRITY"
 

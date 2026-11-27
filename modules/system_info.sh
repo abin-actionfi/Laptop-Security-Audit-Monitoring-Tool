@@ -1,7 +1,5 @@
 #!/bin/bash
 
-USAGE_THRESHOLD=80
-
 check_firewall() {
     section "FIREWALL"
 
@@ -86,7 +84,7 @@ check_resources() {
     cpu_idle=$(vmstat 1 2 | tail -n 1 | awk '{print $15}')
     cpu=$((100 - cpu_idle))
     ram=$(free | awk '/Mem:/ {printf "%d", ($2-$7)/$2*100}')
-    disk=$(df / | awk 'NR==2 {gsub("%",""); print $5}')
+    disk=$(df "$DISK_MOUNT" | awk 'NR==2 {gsub("%",""); print $5}')
 
     if [ "$cpu" -ge "$USAGE_THRESHOLD" ]; then
         log_warn "CPU usage is high: ${cpu}%"
@@ -114,7 +112,7 @@ check_ports() {
     section "OPEN PORTS"
 
     local public_ports
-    public_ports=$(ss -tulnp | awk 'NR>1 && ($5 ~ /^0\.0\.0\.0:/ || $5 ~ /^\[::\]:/) {print $5, $7}')
+    public_ports=$(ss -tulnp | awk 'NR>1 && ($5 ~ /^0\.0\.0\.0:/ || $5 ~ /^\[::\]:/ || $5 ~ /^\*:/) {print $5, $7}')
 
     if [ -z "$public_ports" ]; then
         log_ok "No ports are listening on all network interfaces"
@@ -131,11 +129,10 @@ check_ports() {
 check_services() {
     section "RUNNING SERVICES"
 
-    local risky_services=(avahi-daemon cups-browsed bluetooth gnome-remote-desktop snapd)
     local found=0
     local svc
 
-    for svc in "${risky_services[@]}"; do
+        for svc in "${RISKY_SERVICES[@]}"; do
         if systemctl is-active --quiet "$svc"; then
             log_warn "Service running that is often not needed: $svc"
             found=1
@@ -170,7 +167,7 @@ check_system() {
  echo ""
  echo "DISK INFORMATION"
 
- df -h /
+ df -h "$DISK_MOUNT"
 
  echo ""
  echo "INSTALLED PACKAGES"

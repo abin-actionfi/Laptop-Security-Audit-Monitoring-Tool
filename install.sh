@@ -10,14 +10,14 @@ require_root
 RUN_TIME="${1:-15:00}"
 
 mkdir -p "$INSTALL_DIR"
-rm -rf "$INSTALL_DIR/lib" "$INSTALL_DIR/modules"
-cp -r "$PROJECT_DIR/lib" "$PROJECT_DIR/modules" "$INSTALL_DIR/"
+rm -rf "$INSTALL_DIR/lib" "$INSTALL_DIR/modules" "$INSTALL_DIR/config"
+cp -r "$PROJECT_DIR/lib" "$PROJECT_DIR/modules" "$PROJECT_DIR/config" "$INSTALL_DIR/" 
 cp "$PROJECT_DIR/audit.sh" "$INSTALL_DIR/"
 mkdir -p "$INSTALL_DIR/baseline" "$INSTALL_DIR/logs" "$INSTALL_DIR/reports"
 
 chown -R root:root "$INSTALL_DIR"
-chmod 755 "$INSTALL_DIR" "$INSTALL_DIR/audit.sh" "$INSTALL_DIR/lib" "$INSTALL_DIR/modules"
-chmod 644 "$INSTALL_DIR"/lib/*.sh "$INSTALL_DIR"/modules/*.sh
+chmod 755 "$INSTALL_DIR" "$INSTALL_DIR/audit.sh" "$INSTALL_DIR/lib" "$INSTALL_DIR/modules" "$INSTALL_DIR/config"
+chmod 644 "$INSTALL_DIR"/lib/*.sh "$INSTALL_DIR"/modules/*.sh "$INSTALL_DIR"/config/*.conf
 chmod 700 "$INSTALL_DIR/baseline" "$INSTALL_DIR/logs" "$INSTALL_DIR/reports"
 
 cat > /etc/systemd/system/laptop-audit.service <<EOF

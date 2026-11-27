@@ -9,7 +9,12 @@ source "$PROJECT_DIR/modules/integrity.sh"
 
 require_root
 
-require_root
+CONFIG_FILE="$PROJECT_DIR/config/audit.conf"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "ERROR: config file not found: $CONFIG_FILE" >&2
+    exit 1
+fi
+source "$CONFIG_FILE"
 
 if [ "$1" = "--rebaseline" ]; then
     rebaseline_integrity
@@ -22,7 +27,7 @@ echo "LAPTOP SECURITY AUDIT TOOL"
 
 mkdir -p "$PROJECT_DIR/reports"
 
-find "$PROJECT_DIR/reports" -name 'audit_*.txt' -mtime +30 -delete
+find "$PROJECT_DIR/reports" -name 'audit_*.txt' -mtime +"$REPORT_KEEP_DAYS" -delete
 
 {
 check_system
@@ -39,6 +44,8 @@ check_system_cron
 check_integrity
 
 print_summary
+
+write_metrics "$METRICS_FILE" "$(basename "$REPORT_FILE")"
 
 echo ""
 echo "Audit Completed!"

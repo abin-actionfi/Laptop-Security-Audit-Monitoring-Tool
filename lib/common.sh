@@ -73,4 +73,29 @@ require_root() {
     fi
 }
 
+write_metrics() {
+    local file="$1"
+    local report_name="$2"
+    local version="1.0"
+    local os_name
+    os_name="$(. /etc/os-release && echo "$PRETTY_NAME")"
 
+    [ -d "$(dirname "$file")" ] || return 0
+
+    {
+        echo "laptop_audit_info{report=\"$report_name\",os=\"$os_name\",version=\"$version\"} 1"
+        echo "laptop_audit_ok_count $OK_COUNT"
+        echo "laptop_audit_warn_count $WARN_COUNT"
+        echo "laptop_audit_crit_count $CRIT_COUNT"
+        echo "laptop_audit_last_run_timestamp_seconds $(date +%s)"
+
+        for msg in "${CRITICALS[@]}"; do
+            msg="${msg//\\/\\\\}"
+            msg="${msg//\"/\\\"}"
+            echo "laptop_audit_finding{level=\"CRIT\",message=\"$msg\"} 1"
+        done
+    } > "$file.tmp"
+
+    chmod 644 "$file.tmp"
+    mv "$file.tmp" "$file"
+}
